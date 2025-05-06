@@ -10,11 +10,11 @@ import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
-    List<Student> findByBatch_Id(Long batchId);  // Find students by batch ID
+  /*  List<Student> findByBatch_Id(Long batchId);  // Find students by batch ID
 
     // Find student by user ID
     Optional<Student> findByUser_UserId(Long userId);
     // Find student with batch and course details
     @Query("SELECT s FROM Student s LEFT JOIN FETCH s.batch b LEFT JOIN FETCH b.course WHERE s.studentId = :studentId")
-    Optional<Student> findStudentWithDetails(Long studentId);
+    Optional<Student> findStudentWithDetails(Long studentId);*/
 }
