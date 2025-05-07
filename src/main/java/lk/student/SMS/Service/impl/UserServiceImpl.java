@@ -6,6 +6,7 @@ import lk.student.SMS.Entity.User;
 import lk.student.SMS.Service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,6 +70,12 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.save(existingUser);
 
         return mapper.map(updatedUser, UserDto.class);
+    }
+    @Override
+    public UserDetailsService userDetailService() {
+        return userName ->
+                userRepository.findByEmail(userName)
+                        .orElseThrow(()->new RuntimeException("User Not Found"));
     }
 
 }
