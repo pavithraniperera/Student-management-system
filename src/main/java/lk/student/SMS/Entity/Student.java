@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Entity
 @Table(name = "students")
-@Data
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +34,56 @@ public class Student {
         if (registeredBy == null || !registeredBy.isCounselor()) {
             throw new IllegalStateException("Only counselors can register students");
         }
+    }
+
+    public Student() {
+    }
+
+    public Long getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public User getRegisteredBy() {
+        return registeredBy;
+    }
+
+    public void setRegisteredBy(User registeredBy) {
+        this.registeredBy = registeredBy;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Batch getBatch() {
+        return batch;
+    }
+
+    public void setBatch(Batch batch) {
+        this.batch = batch;
     }
 }
