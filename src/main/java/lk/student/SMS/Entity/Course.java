@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "courses")
-@Data
+
 public class Course {
 
     @Id
@@ -16,7 +16,7 @@ public class Course {
     @Column(name = "course_id")
     private Long courseId;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "course_name",nullable = false, unique = true)
     private String courseName;
 
     private String description;
@@ -30,5 +30,40 @@ public class Course {
     public void addBatch(Batch batch) {
         batches.add(batch);
         batch.setCourse(this);
+    }
+
+    public Course() {
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Batch> getBatches() {
+        return batches;
+    }
+
+    public void setBatches(List<Batch> batches) {
+        this.batches = batches;
     }
 }
