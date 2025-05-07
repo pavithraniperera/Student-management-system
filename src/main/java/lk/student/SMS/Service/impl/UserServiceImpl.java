@@ -54,4 +54,21 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
 
     }
+    @Override
+    public UserDto updateUser(Long id, UserDto userDto) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        // Map the updated fields (only update specific fields you allow to be updated)
+        existingUser.setName(userDto.getName());
+        existingUser.setEmail(userDto.getEmail());
+        existingUser.setPhone(userDto.getPhone());
+        existingUser.setPassword(userDto.getPassword());
+        existingUser.setRole(userDto.getRole());
+
+        User updatedUser = userRepository.save(existingUser);
+
+        return mapper.map(updatedUser, UserDto.class);
+    }
+
 }
