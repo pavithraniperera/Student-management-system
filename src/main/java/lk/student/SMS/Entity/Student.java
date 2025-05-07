@@ -19,7 +19,7 @@ public class Student {
     private User registeredBy;
 
     // Student may have a user account (optional)
-    @OneToOne
+    @OneToOne(optional = true)
     @JoinColumn(name = "user_id")
     private User user;
 
