@@ -15,8 +15,17 @@ public class BatchDto {
 
     @NotNull(message = "Course ID is required")
     private Long courseId;
+    private IntakeDto intake;
 
     public BatchDto() {
+    }
+
+    public BatchDto(Long id, String batchName, Long intakeId, Long courseId, IntakeDto intake) {
+        this.id = id;
+        this.batchName = batchName;
+        this.intakeId = intakeId;
+        this.courseId = courseId;
+        this.intake = intake;
     }
 
     public BatchDto(Long id, String batchName, Long intakeId, Long courseId) {
@@ -24,6 +33,14 @@ public class BatchDto {
         this.batchName = batchName;
         this.intakeId = intakeId;
         this.courseId = courseId;
+    }
+
+    public IntakeDto getIntake() {
+        return intake;
+    }
+
+    public void setIntake(IntakeDto intake) {
+        this.intake = intake;
     }
 
     public Long getId() {

@@ -3,6 +3,8 @@ package lk.student.SMS.Service.impl;
 import lk.student.SMS.Dao.BatchRepository;
 import lk.student.SMS.Dao.StudentRepository;
 import lk.student.SMS.Dao.UserRepository;
+import lk.student.SMS.Dto.BatchDto;
+import lk.student.SMS.Dto.IntakeDto;
 import lk.student.SMS.Dto.StudentDto;
 import lk.student.SMS.Entity.Batch;
 import lk.student.SMS.Entity.Role;
@@ -74,9 +76,33 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDto getStudentById(Long id) {
+        /*Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        return modelMapper.map(student, StudentDto.class);*/
+
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
-        return modelMapper.map(student, StudentDto.class);
+
+        StudentDto studentDto = modelMapper.map(student, StudentDto.class);
+
+        // Get the Batch entity related to the student
+        Batch batch = student.getBatch();
+        if (batch != null) {
+            // Create the BatchDto
+            BatchDto batchDto = modelMapper.map(batch, BatchDto.class);
+
+            // Map the related Intake entity from the Batch
+            IntakeDto intakeDto = null;
+            if (batch.getIntake() != null) {
+                intakeDto = modelMapper.map(batch.getIntake(), IntakeDto.class);
+            }
+
+            // Set the BatchDto in the StudentDto
+            batchDto.setIntake(intakeDto);
+            studentDto.setBatch(batchDto);
+        }
+
+        return studentDto;
     }
 
     @Override

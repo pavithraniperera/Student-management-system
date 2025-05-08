@@ -23,6 +23,9 @@ public class StudentDto {
 
     private Long userId; // optional
 
+    private BatchDto batch; // optional
+
+
     public StudentDto() {
     }
 
@@ -33,6 +36,17 @@ public class StudentDto {
         this.batchId = batchId;
         this.registeredById = registeredById;
         this.userId = userId;
+    }
+
+    public StudentDto(Long id, String name, String email, Long batchId, Long registeredById, Long userId, BatchDto batch, IntakeDto intake) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.batchId = batchId;
+        this.registeredById = registeredById;
+        this.userId = userId;
+        this.batch = batch;
+
     }
 
     public Long getId() {
@@ -82,5 +96,14 @@ public class StudentDto {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+    public BatchDto getBatch() {
+        return batch;
+    }
+
+    public void setBatch(BatchDto batch) {
+        this.batch = batch;
+    }
+
 }
 
