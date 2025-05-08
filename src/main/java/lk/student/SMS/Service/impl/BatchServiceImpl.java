@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,9 +90,15 @@ public class BatchServiceImpl implements BatchService {
 
     @Override
     public List<BatchDto> getAllBatches() {
-        return batchRepository.findAll()
-                .stream()
-                .map(batch -> modelMapper.map(batch, BatchDto.class))
-                .collect(Collectors.toList());
+        List<Batch> batches = batchRepository.findAll();
+        List<BatchDto> batchDtos = new ArrayList<>();
+
+        for (Batch batch : batches) {
+            BatchDto dto = modelMapper.map(batch, BatchDto.class);
+            batchDtos.add(dto);
+        }
+
+        return batchDtos;
+
     }
 }

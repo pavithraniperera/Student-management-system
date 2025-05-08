@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,16 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDto> getAllCourses() {
-        return courseRepository.findAll().stream()
-                .map(course -> modelMapper.map(course, CourseDto.class))
-                .collect(Collectors.toList());
+        List<Course> courses = courseRepository.findAll();
+        List<CourseDto> courseDtos = new ArrayList<>();
+
+        for (Course course : courses) {
+            CourseDto dto = modelMapper.map(course, CourseDto.class);
+            courseDtos.add(dto);
+        }
+
+        return courseDtos;
+
     }
 
     @Override

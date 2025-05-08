@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,10 +38,16 @@ public class IntakeServiceImpl implements IntakeService {
 
     @Override
     public List<IntakeDto> getAllIntakes() {
-        return intakeRepository.findAll()
-                .stream()
-                .map(intake -> modelMapper.map(intake, IntakeDto.class))
-                .collect(Collectors.toList());
+        List<Intake> intakes = intakeRepository.findAll();
+        List<IntakeDto> intakeDtos = new ArrayList<>();
+
+        for (Intake intake : intakes) {
+            IntakeDto dto = modelMapper.map(intake, IntakeDto.class);
+            intakeDtos.add(dto);
+        }
+
+        return intakeDtos;
+
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,9 +81,16 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<StudentDto> getAllStudents() {
-        return studentRepository.findAll().stream()
-                .map(student -> modelMapper.map(student, StudentDto.class))
-                .collect(Collectors.toList());
+        List<Student> students = studentRepository.findAll();
+        List<StudentDto> studentDtos = new ArrayList<>();
+
+        for (Student student : students) {
+            StudentDto dto = modelMapper.map(student, StudentDto.class);
+            studentDtos.add(dto);
+        }
+
+        return studentDtos;
+
     }
 
     @Override

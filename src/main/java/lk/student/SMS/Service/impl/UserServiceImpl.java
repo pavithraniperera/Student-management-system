@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,9 +47,15 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     public List<UserDto> getAllUsers() {
 
         List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(user -> mapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
+        List<UserDto> userDtos = new ArrayList<>();
+
+        for (User user : users) {
+            UserDto dto = mapper.map(user, UserDto.class);
+            userDtos.add(dto);
+        }
+
+        return userDtos;
+
     }
 
     @Override
