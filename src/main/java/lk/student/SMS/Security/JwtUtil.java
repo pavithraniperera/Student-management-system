@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -62,7 +63,11 @@ public class JwtUtil {
 
     // Generate the JWT token with claims, subject, and expiration
     private String generateToken(Map<String, Object> claims, UserDetails userDetails) {
-        claims.put("role", userDetails.getAuthorities());
+        claims.put("role", userDetails.getAuthorities()
+                .stream()
+                .map(auth -> auth.getAuthority())
+                .toList());
+
         Date now = new Date();
         Date expire = new Date(now.getTime() + 1000 * 60 * 60 * 24); // Token expires in 24 hours
 
@@ -99,4 +104,9 @@ public class JwtUtil {
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+    public List<String> extractRoles(String token) {
+        Claims claims = getAllClaims(token);
+        return claims.get("role", List.class); // "role" is the key you used when generating the token
+    }
+
 }

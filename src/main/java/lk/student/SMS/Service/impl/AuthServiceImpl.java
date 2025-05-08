@@ -42,7 +42,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(signIn.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         System.out.println(user);
-
         return jwtUtil.generateToken(user);
     }
 
@@ -53,7 +52,6 @@ public class AuthServiceImpl implements AuthService {
         if (existingUser.isPresent()) {
             throw new RuntimeException("User already exists");
         }
-
         User user = new User();
         user.setName(user.getName());
         user.setEmail(userDto.getEmail());
