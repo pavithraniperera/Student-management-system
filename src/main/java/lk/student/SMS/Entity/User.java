@@ -27,9 +27,19 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Getter
+    @OneToMany(mappedBy = "createdBy")
+    private List<FeeScheme> feeSchemesCreated;
+    @OneToMany(mappedBy = "registeredBy")
+    private List<Student> registeredStudents;
+    // If the user is also a student
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Student studentProfile;
+
 
     public User() {
     }
+
 
     public User(Long id, String name, String email, String phone, String password, Role role, List<Student> registeredStudents, Student studentProfile) {
         this.id = id;
@@ -40,6 +50,14 @@ public class User implements UserDetails {
         this.role = role;
         this.registeredStudents = registeredStudents;
         this.studentProfile = studentProfile;
+    }
+
+    public List<FeeScheme> getFeeSchemesCreated() {
+        return feeSchemesCreated;
+    }
+
+    public void setFeeSchemesCreated(List<FeeScheme> feeSchemesCreated) {
+        this.feeSchemesCreated = feeSchemesCreated;
     }
 
     public Long getId() {
@@ -103,11 +121,7 @@ public class User implements UserDetails {
         this.studentProfile = studentProfile;
     }
 
-    @OneToMany(mappedBy = "registeredBy")
-    private List<Student> registeredStudents;
-    // If the user is also a student
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Student studentProfile;
+
     public boolean isCounselor() {
         return Role.COUNSELOR.equals(this.role);
     }
