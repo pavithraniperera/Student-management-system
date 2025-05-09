@@ -41,10 +41,10 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
         feeScheme.setSchemeName(dto.getSchemeName());
         feeScheme.setCreatedDate(LocalDate.now());
         feeScheme.setCurrency(dto.getCurrency());
-        if (dto.getCreatedByUserId() == null) {
+        if (dto.getCreatedBy() == null) {
             throw new IllegalArgumentException("CreatedBy user ID must not be null");
         }else {
-            User user = userRepository.findById(dto.getCreatedByUserId())
+            User user = userRepository.findById(dto.getCreatedBy())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             feeScheme.setCreatedBy(user);
 
@@ -78,7 +78,12 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
 
 
         FeeScheme saved = feeSchemeRepository.save(feeScheme);
+        modelMapper.typeMap(FeeScheme.class, FeeSchemeDto.class).addMappings(mapper ->
+                mapper.map(src -> src.getCreatedBy().getId(), FeeSchemeDto::setCreatedBy)
+        );
+
         return modelMapper.map(saved, FeeSchemeDto.class);
+
     }
 
     @Override
