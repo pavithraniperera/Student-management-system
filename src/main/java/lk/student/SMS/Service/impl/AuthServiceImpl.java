@@ -36,17 +36,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String signIn(SignIn signIn) {
+        // authenticate the provided credentials using Spring Security
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signIn.getEmail(), signIn.getPassword()));
-
+        // If authentication passes, fetch the user from the database
         User user = userRepository.findByEmail(signIn.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         System.out.println(user);
+        // Generate and return a JWT token for the user
         return jwtUtil.generateToken(user);
     }
 
     @Override
     public String signUp(UserDto userDto) {
+        // Check if a user with the same email already exists
         Optional<User> existingUser = userRepository.findByEmail(userDto.getEmail());
 
         if (existingUser.isPresent()) {
@@ -59,6 +62,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(userDto.getRole());
 
         userRepository.save(user);
+        // Generate and return a JWT token for the newly registered user
         return jwtUtil.generateToken(user);
     }
 }

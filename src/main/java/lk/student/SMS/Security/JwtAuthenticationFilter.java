@@ -62,12 +62,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }*/
 
+    //Its purpose is to intercept each HTTP request,
+    // check for a JWT token, validate it, and set up user authentication
+
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        //If there’s no token or it doesn't start with "Bearer ", skip authentication and continue
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -76,12 +80,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7); // Remove "Bearer "
         String username = jwtUtil.extractUserName(token);
-
+         //If username exists and user is not already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (jwtUtil.validateToken(token, userDetails)) {
 
-                // 🔥 Extract roles from the token
+                //  Extract roles from the token
                 List<String> roles = jwtUtil.extractRoles(token);
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)

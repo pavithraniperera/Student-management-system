@@ -106,7 +106,7 @@ public class JwtUtil {
     }
     public List<String> extractRoles(String token) {
         Claims claims = getAllClaims(token);
-        return claims.get("role", List.class); // "role" is the key you used when generating the token
+        return claims.get("role", List.class); // "role" is the key  used when generating the token
     }
 
 }

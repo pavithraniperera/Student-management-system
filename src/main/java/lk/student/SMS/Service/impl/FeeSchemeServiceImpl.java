@@ -95,6 +95,11 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
 
     @Override
     public List<FeeSchemeDto> getAll() {
+        // Fix: Set up ModelMapper mapping
+        modelMapper.typeMap(FeeScheme.class, FeeSchemeDto.class).addMappings(mapper ->
+                mapper.map(src -> src.getCreatedBy().getId(), FeeSchemeDto::setCreatedBy)
+        );
+
         List<FeeScheme> feeSchemes = feeSchemeRepository.findAll();
         List<FeeSchemeDto> dtoList = new ArrayList<>();
 
@@ -103,8 +108,8 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
         }
 
         return dtoList;
-
     }
+
 
     @Override
     public FeeSchemeDto updateFeeScheme(Long id, FeeSchemeDto dto) {
