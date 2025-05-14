@@ -13,6 +13,8 @@ import lk.student.SMS.Entity.User;
 import lk.student.SMS.Service.StudentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -105,18 +107,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentDto> getAllStudents() {
-        List<Student> students = studentRepository.findAll();
-        List<StudentDto> studentDtos = new ArrayList<>();
-
-        for (Student student : students) {
-            StudentDto dto = modelMapper.map(student, StudentDto.class);
-            studentDtos.add(dto);
-        }
-
-        return studentDtos;
-
+    public Page<StudentDto> getAllStudents(Pageable pageable) {
+        Page<Student> studentPage = studentRepository.findAll(pageable);
+        return studentPage.map(student -> modelMapper.map(student, StudentDto.class));
     }
+
 
     @Override
     public StudentDto updateStudent(Long id, StudentDto dto) {

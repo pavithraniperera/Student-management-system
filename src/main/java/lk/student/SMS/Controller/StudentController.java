@@ -3,6 +3,9 @@ package lk.student.SMS.Controller;
 import jakarta.validation.Valid;
 import lk.student.SMS.Dto.StudentDto;
 import lk.student.SMS.Service.StudentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,9 +47,11 @@ public class StudentController {
 
     @PreAuthorize("hasAnyRole('COUNSELOR', 'FINANCE_MANAGER')")
     @GetMapping
-    public ResponseEntity<?> getAllStudents() {
+    public ResponseEntity<?> getAllStudents( @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size) {
         try {
-            List<StudentDto> students = studentService.getAllStudents();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<StudentDto> students = studentService.getAllStudents(pageable);
             return new ResponseEntity<>(students, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error retrieving students: " + e.getMessage(), HttpStatus.BAD_REQUEST);
