@@ -6,6 +6,8 @@ import lk.student.SMS.Entity.Course;
 import lk.student.SMS.Service.CourseService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,18 +51,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseDto> getAllCourses() {
-        List<Course> courses = courseRepository.findAll();
-        List<CourseDto> courseDtos = new ArrayList<>();
-
-        for (Course course : courses) {
-            CourseDto dto = modelMapper.map(course, CourseDto.class);
-            courseDtos.add(dto);
-        }
-
-        return courseDtos;
-
+    public Page<CourseDto> getAllCourses(Pageable pageable) {
+        Page<Course> coursePage = courseRepository.findAll(pageable);
+        return coursePage.map(course -> modelMapper.map(course, CourseDto.class));
     }
+
 
     @Override
     public void deleteCourse(Long id) {

@@ -4,6 +4,9 @@ import jakarta.validation.Valid;
 import lk.student.SMS.Dto.CourseDto;
 import lk.student.SMS.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,9 +60,12 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('STUDENT', 'COUNSELOR', 'FINANCE_MANAGER')")
     @GetMapping
-    public ResponseEntity<?> getAllCourses() {
+    public ResponseEntity<?> getAllCourses( @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+
         try {
-            List<CourseDto> courses = courseService.getAllCourses();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<CourseDto> courses = courseService.getAllCourses(pageable);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error retrieving courses: " + e.getMessage(), HttpStatus.BAD_REQUEST);
