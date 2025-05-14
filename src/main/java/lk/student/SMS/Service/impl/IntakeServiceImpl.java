@@ -6,6 +6,8 @@ import lk.student.SMS.Entity.Intake;
 import lk.student.SMS.Service.IntakeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,18 +39,11 @@ public class IntakeServiceImpl implements IntakeService {
     }
 
     @Override
-    public List<IntakeDto> getAllIntakes() {
-        List<Intake> intakes = intakeRepository.findAll();
-        List<IntakeDto> intakeDtos = new ArrayList<>();
-
-        for (Intake intake : intakes) {
-            IntakeDto dto = modelMapper.map(intake, IntakeDto.class);
-            intakeDtos.add(dto);
-        }
-
-        return intakeDtos;
-
+    public Page<IntakeDto> getAllIntakes(Pageable pageable) {
+        Page<Intake> intakePage = intakeRepository.findAll(pageable);
+        return intakePage.map(intake -> modelMapper.map(intake, IntakeDto.class));
     }
+
 
     @Override
     public IntakeDto updateIntake(Long id, IntakeDto intakeDto) {
