@@ -27,17 +27,17 @@ public class SecurityAspect {
 
     @Before("loginPointcut()")
     public void logLoginAttempt(JoinPoint joinPoint) {
-        logger.info("🔐 Login attempt with args: " + joinPoint.getArgs()[0]);
+        logger.info(" Login attempt with args: " + joinPoint.getArgs()[0]);
     }
 
     @Before("registerPointcut()")
     public void logRegistration(JoinPoint joinPoint) {
-        logger.info("📝 Registration attempt: " + joinPoint.getArgs()[0]);
+        logger.info(" Registration attempt: " + joinPoint.getArgs()[0]);
     }
 
     @Before("securedServices()")
     public void logAccessToSecuredService(JoinPoint joinPoint) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.info("🔒 User '" + username + "' accessed: " + joinPoint.getSignature().toShortString());
+        logger.info(" User '" + username + "' accessed: " + joinPoint.getSignature().toShortString());
     }
 }

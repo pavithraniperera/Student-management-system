@@ -100,6 +100,8 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
                 mapper.map(src -> src.getCreatedBy().getId(), FeeSchemeDto::setCreatedBy)
         );
 
+        // addMapping  method allows you to define custom mapping behavior
+
         List<FeeScheme> feeSchemes = feeSchemeRepository.findAll();
         List<FeeSchemeDto> dtoList = new ArrayList<>();
 

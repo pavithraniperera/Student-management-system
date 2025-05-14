@@ -35,11 +35,6 @@ public class JwtUtil {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    // Generate a refreshed token
-    public String refreshToken(UserDetails userDetails) {
-        return refreshToken(new HashMap<>(), userDetails);
-    }
-
     // Extract a specific claim from the token
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
         final Claims claims = getAllClaims(token);
