@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lk.student.SMS.Dto.UserDto;
 import lk.student.SMS.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,37 +21,61 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
     // Create a new user
     @PreAuthorize("hasAnyRole('COUNSELOR', 'FINANCE_MANAGER')")
-    @PostMapping( consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userCreateDTO) {
-        System.out.println(userCreateDTO);
-        UserDto createdUser = userService.createUser(userCreateDTO);
-        return ResponseEntity.ok(createdUser);
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userCreateDTO) {
+        try {
+            UserDto createdUser = userService.createUser(userCreateDTO);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error creating user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            UserDto user = userService.getUserById(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
+
     @PreAuthorize("hasAnyRole('COUNSELOR', 'FINANCE_MANAGER')")
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<UserDto> users = userService.getAllUsers();
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving users: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("hasRole('FINANCE_MANAGER')")
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return new ResponseEntity<>("User deleted successfully", HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
+
     @PreAuthorize("hasRole('COUNSELOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserDto userDto) {
-        UserDto updatedUser = userService.updateUser(id, userDto);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserDto userDto) {
+        try {
+            UserDto updatedUser = userService.updateUser(id, userDto);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
-
 }
+

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lk.student.SMS.Dto.CourseDto;
 import lk.student.SMS.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,33 +24,57 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('COUNSELOR', 'FINANCE_MANAGER')")
     @PostMapping
-    public ResponseEntity<CourseDto> createCourse(@Valid @RequestBody CourseDto courseDto) {
-        System.out.println(courseDto);
-        return ResponseEntity.ok(courseService.createCourse(courseDto));
+    public ResponseEntity<?> createCourse(@Valid @RequestBody CourseDto courseDto) {
+        try {
+            CourseDto createdCourse = courseService.createCourse(courseDto);
+            return new ResponseEntity<>(createdCourse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error creating course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
+
     @PreAuthorize("hasRole('COUNSELOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<CourseDto> updateCourse(@PathVariable Long id, @Valid @RequestBody CourseDto courseDto) {
-        return ResponseEntity.ok(courseService.updateCourse(id, courseDto));
+    public ResponseEntity<?> updateCourse(@PathVariable Long id, @Valid @RequestBody CourseDto courseDto) {
+        try {
+            CourseDto updatedCourse = courseService.updateCourse(id, courseDto);
+            return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<CourseDto> getCourseById(@PathVariable Long id) {
-        return ResponseEntity.ok(courseService.getCourseById(id));
+    public ResponseEntity<?> getCourseById(@PathVariable Long id) {
+        try {
+            CourseDto course = courseService.getCourseById(id);
+            return new ResponseEntity<>(course, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("hasAnyRole('STUDENT', 'COUNSELOR', 'FINANCE_MANAGER')")
     @GetMapping
-    public ResponseEntity<List<CourseDto>> getAllCourses() {
-        return ResponseEntity.ok(courseService.getAllCourses());
+    public ResponseEntity<?> getAllCourses() {
+        try {
+            List<CourseDto> courses = courseService.getAllCourses();
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving courses: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("hasRole('COUNSELOR')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
-        courseService.deleteCourse(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
+        try {
+            courseService.deleteCourse(id);
+            return new ResponseEntity<>("Course deleted successfully", HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
-
 }
+

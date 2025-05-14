@@ -4,10 +4,12 @@ import lk.student.SMS.Dao.UserRepository;
 import lk.student.SMS.Dto.UserDto;
 import lk.student.SMS.Entity.User;
 
+import lk.student.SMS.Security.JWTAuthResponse;
 import lk.student.SMS.Security.JwtUtil;
 import lk.student.SMS.Security.SignIn;
 import lk.student.SMS.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,34 +37,48 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String signIn(SignIn signIn) {
-        // authenticate the provided credentials using Spring Security
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signIn.getEmail(), signIn.getPassword()));
-        // If authentication passes, fetch the user from the database
-        User user = userRepository.findByEmail(signIn.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println(user);
-        // Generate and return a JWT token for the user
-        return jwtUtil.generateToken(user);
+    public ResponseEntity<JWTAuthResponse> signIn(SignIn signIn) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signIn.getEmail(), signIn.getPassword()));
+
+            User user = userRepository.findByEmail(signIn.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            String token = jwtUtil.generateToken(user);
+            JWTAuthResponse response = new JWTAuthResponse(token, "Login successful", 1);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            JWTAuthResponse response = new JWTAuthResponse(null, "Login failed: " + e.getMessage(), 0);
+            return ResponseEntity.ok(response);
+        }
     }
 
     @Override
-    public String signUp(UserDto userDto) {
-        // Check if a user with the same email already exists
-        Optional<User> existingUser = userRepository.findByEmail(userDto.getEmail());
+    public ResponseEntity<JWTAuthResponse> signUp(UserDto userDto) {
+        try {
+            Optional<User> existingUser = userRepository.findByEmail(userDto.getEmail());
+            if (existingUser.isPresent()) {
+                return ResponseEntity.ok(new JWTAuthResponse(null, "User already exists", 0));
+            }
 
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("User already exists");
+            User user = new User();
+            user.setName(userDto.getName());
+            user.setEmail(userDto.getEmail());
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            user.setRole(userDto.getRole());
+
+            userRepository.save(user);
+
+            String token = jwtUtil.generateToken(user);
+            JWTAuthResponse response = new JWTAuthResponse(token, "User registered successfully", 1);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            JWTAuthResponse response = new JWTAuthResponse(null, "Registration failed: " + e.getMessage(), 0);
+            return ResponseEntity.ok(response);
         }
-        User user = new User();
-        user.setName(user.getName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        user.setRole(userDto.getRole());
-
-        userRepository.save(user);
-        // Generate and return a JWT token for the newly registered user
-        return jwtUtil.generateToken(user);
     }
+
 }

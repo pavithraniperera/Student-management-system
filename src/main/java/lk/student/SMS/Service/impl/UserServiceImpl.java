@@ -40,7 +40,10 @@ public class UserServiceImpl implements UserService , UserDetailsService {
         if (userOpt.isEmpty()) {
             throw new RuntimeException("User not found with ID: " + id);
         }
-        return mapper.map(userOpt.get(), UserDto.class);
+        UserDto userDto= mapper.map(userOpt.get(), UserDto.class);
+        // Set password to null
+        userDto.setPassword(null);
+        return userDto;
     }
 
     @Override
@@ -51,6 +54,8 @@ public class UserServiceImpl implements UserService , UserDetailsService {
 
         for (User user : users) {
             UserDto dto = mapper.map(user, UserDto.class);
+            // Set password to null
+            dto.setPassword(null);
             userDtos.add(dto);
         }
 

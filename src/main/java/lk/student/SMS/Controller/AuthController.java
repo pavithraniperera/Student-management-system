@@ -1,6 +1,7 @@
 package lk.student.SMS.Controller;
 
 import lk.student.SMS.Dto.UserDto;
+import lk.student.SMS.Security.JWTAuthResponse;
 import lk.student.SMS.Security.SignIn;
 import lk.student.SMS.Service.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +18,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody SignIn signIn) {
-        String response = authService.signIn(signIn);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<JWTAuthResponse> login(@RequestBody SignIn signIn) {
+        return authService.signIn(signIn);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody UserDto userDto) {
-        String response = authService.signUp(userDto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<JWTAuthResponse> signUp(@RequestBody UserDto userDto) {
+        return authService.signUp(userDto);
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lk.student.SMS.Dto.BatchDto;
 import lk.student.SMS.Service.BatchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,39 +22,63 @@ public class BatchController {
     }
     @PreAuthorize("hasAnyRole('COUNSELOR', 'FINANCE_MANAGER')")
     @PostMapping
-    public ResponseEntity<BatchDto> createBatch(@Valid @RequestBody BatchDto batchDto) {
-        BatchDto created = batchService.createBatch(batchDto);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<?> createBatch(@Valid @RequestBody BatchDto batchDto) {
+
+        try {
+            BatchDto created = batchService.createBatch(batchDto);
+            return new ResponseEntity<>(created, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // Return error details along with a custom message
+            return new ResponseEntity<>("Error creating batch: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
     }
     // Update an existing batch
     @PreAuthorize("hasRole('COUNSELOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<BatchDto> updateBatch(@PathVariable Long id, @Valid @RequestBody BatchDto batchDto) {
-        BatchDto updated = batchService.updateBatch(id, batchDto);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> updateBatch(@PathVariable Long id, @Valid @RequestBody BatchDto batchDto) {
+        try {
+            BatchDto updated = batchService.updateBatch(id, batchDto);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating batch: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
-    // Get a single batch by ID
-    @GetMapping("/{id}")
+
+    // Get a batch by ID (available to all authenticated users)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<BatchDto> getBatch(@PathVariable Long id) {
-        BatchDto batchDto = batchService.getBatchById(id);
-        return ResponseEntity.ok(batchDto);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getBatch(@PathVariable Long id) {
+        try {
+            BatchDto batchDto = batchService.getBatchById(id);
+            return new ResponseEntity<>(batchDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving batch: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     // Get all batches
-    @PreAuthorize("hasAnyRole('STUDENT', 'COUNSELOR', 'FINANCE_MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<List<BatchDto>> getAllBatches() {
-        List<BatchDto> batches = batchService.getAllBatches();
-        return ResponseEntity.ok(batches);
+    public ResponseEntity<?> getAllBatches() {
+        try {
+            List<BatchDto> batches = batchService.getAllBatches();
+            return new ResponseEntity<>(batches, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving batches: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     // Delete a batch
-    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('COUNSELOR')")
-    public ResponseEntity<Void> deleteBatch(@PathVariable Long id) {
-        batchService.deleteBatch(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBatch(@PathVariable Long id) {
+        try {
+            batchService.deleteBatch(id);
+            return new ResponseEntity<>("Batch deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting batch: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }
