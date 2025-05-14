@@ -1,6 +1,7 @@
 package lk.student.SMS.Controller;
 
 import jakarta.validation.Valid;
+import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Dto.UserDto;
 import lk.student.SMS.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,8 @@ public class UserController {
             UserDto createdUser = userService.createUser(userCreateDTO);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error creating user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error creating user: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -41,7 +43,8 @@ public class UserController {
             UserDto user = userService.getUserById(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error retrieving user: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -52,7 +55,8 @@ public class UserController {
             List<UserDto> users = userService.getAllUsers();
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving users: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error retrieving users: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -61,9 +65,11 @@ public class UserController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);
-            return new ResponseEntity<>("User deleted successfully", HttpStatus.NO_CONTENT);
+            // Return MessageResponse with success status
+            return new ResponseEntity<>(new MessageResponse("User deleted successfully", 1), HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error deleting user: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -74,8 +80,8 @@ public class UserController {
             UserDto updatedUser = userService.updateUser(id, userDto);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error updating user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error updating user: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 }
-

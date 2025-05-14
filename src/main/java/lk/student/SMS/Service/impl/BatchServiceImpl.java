@@ -4,17 +4,19 @@ import lk.student.SMS.Dao.BatchRepository;
 import lk.student.SMS.Dao.CourseRepository;
 import lk.student.SMS.Dao.IntakeRepository;
 import lk.student.SMS.Dto.BatchDto;
+import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Entity.Batch;
 import lk.student.SMS.Entity.Course;
 import lk.student.SMS.Entity.Intake;
 import lk.student.SMS.Service.BatchService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 
@@ -73,13 +75,20 @@ public class BatchServiceImpl implements BatchService {
     }
 
     @Override
-    public void deleteBatch(Long id) {
-        if (!batchRepository.existsById(id)) {
-            throw new RuntimeException("Batch not found");
-        }
-        batchRepository.deleteById(id);
 
+    public ResponseEntity<?> deleteBatch(Long id) {
+        if (!batchRepository.existsById(id)) {
+            return new ResponseEntity<>(new MessageResponse("Batch not found",0), HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            batchRepository.deleteById(id);
+            return new ResponseEntity<>("Batch deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting batch: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     @Override
     public BatchDto getBatchById(Long id) {

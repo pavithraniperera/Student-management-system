@@ -2,6 +2,7 @@ package lk.student.SMS.Controller;
 
 import jakarta.validation.Valid;
 import lk.student.SMS.Dto.BatchDto;
+import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Service.BatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class BatchController {
             return new ResponseEntity<>(created, HttpStatus.CREATED);
         } catch (Exception e) {
             // Return error details along with a custom message
-            return new ResponseEntity<>("Error creating batch: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error creating batch: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -39,9 +40,9 @@ public class BatchController {
     public ResponseEntity<?> updateBatch(@PathVariable Long id, @Valid @RequestBody BatchDto batchDto) {
         try {
             BatchDto updated = batchService.updateBatch(id, batchDto);
-            return new ResponseEntity<>(updated, HttpStatus.OK);
+            return new ResponseEntity<>(new MessageResponse("Batch updated successfully", 1), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error updating batch: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error updating batch: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -54,7 +55,7 @@ public class BatchController {
             BatchDto batchDto = batchService.getBatchById(id);
             return new ResponseEntity<>(batchDto, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving batch: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("Error retrieving batch: " + e.getMessage(),0), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -76,9 +77,9 @@ public class BatchController {
     public ResponseEntity<?> deleteBatch(@PathVariable Long id) {
         try {
             batchService.deleteBatch(id);
-            return new ResponseEntity<>("Batch deleted successfully", HttpStatus.OK);
+            return new ResponseEntity<>(new MessageResponse("Batch deleted successfully",1), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting batch: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error deleting batch: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
         }
     }
 }

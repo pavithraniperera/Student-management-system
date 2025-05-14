@@ -2,6 +2,7 @@ package lk.student.SMS.Controller;
 
 import jakarta.validation.Valid;
 import lk.student.SMS.Dto.IntakeDto;
+import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Service.IntakeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/intakes")
@@ -32,7 +31,8 @@ public class IntakeController {
             IntakeDto createdIntake = intakeService.createIntake(intakeDto);
             return new ResponseEntity<>(createdIntake, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error creating intake: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error creating intake: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -43,7 +43,8 @@ public class IntakeController {
             IntakeDto intake = intakeService.getIntakeById(id);
             return new ResponseEntity<>(intake, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving intake: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error retrieving intake: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -58,7 +59,8 @@ public class IntakeController {
             Page<IntakeDto> intakes = intakeService.getAllIntakes(pageable);
             return new ResponseEntity<>(intakes, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving intakes: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error retrieving intakes: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -69,7 +71,8 @@ public class IntakeController {
             IntakeDto updatedIntake = intakeService.updateIntake(id, intakeDto);
             return new ResponseEntity<>(updatedIntake, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error updating intake: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            // Return MessageResponse with failure status
+            return new ResponseEntity<>(new MessageResponse("Error updating intake: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -78,11 +81,11 @@ public class IntakeController {
     public ResponseEntity<?> deleteIntake(@PathVariable Long id) {
         try {
             intakeService.deleteIntake(id);
-            return new ResponseEntity<>("Intake deleted successfully", HttpStatus.NO_CONTENT);
+
+            return new ResponseEntity<>(new MessageResponse("Intake deleted successfully", 1), HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting intake: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+
+            return new ResponseEntity<>(new MessageResponse("Error deleting intake: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
         }
     }
-
 }
-

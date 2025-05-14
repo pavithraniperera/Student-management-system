@@ -2,6 +2,7 @@ package lk.student.SMS.Controller;
 
 import jakarta.validation.Valid;
 import lk.student.SMS.Dto.CourseDto;
+import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -32,7 +31,8 @@ public class CourseController {
             CourseDto createdCourse = courseService.createCourse(courseDto);
             return new ResponseEntity<>(createdCourse, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error creating course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>( new MessageResponse("Error Creating course: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
+
         }
     }
 
@@ -43,7 +43,8 @@ public class CourseController {
             CourseDto updatedCourse = courseService.updateCourse(id, courseDto);
             return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error updating course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error updating course: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
+
         }
     }
 
@@ -54,7 +55,7 @@ public class CourseController {
             CourseDto course = courseService.getCourseById(id);
             return new ResponseEntity<>(course, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error retrieving course: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -68,19 +69,24 @@ public class CourseController {
             Page<CourseDto> courses = courseService.getAllCourses(pageable);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving courses: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error retrieving courses: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
+
         }
     }
-
     @PreAuthorize("hasRole('COUNSELOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         try {
             courseService.deleteCourse(id);
-            return new ResponseEntity<>("Course deleted successfully", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new MessageResponse("Course deleted successfully", 1), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(new MessageResponse("Course not found", 0), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting course: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error deleting course: " + e.getMessage(), 0), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
 }
 
