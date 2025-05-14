@@ -7,7 +7,7 @@ import lk.student.SMS.Dto.BatchDto;
 import lk.student.SMS.Dto.IntakeDto;
 import lk.student.SMS.Dto.StudentDto;
 import lk.student.SMS.Entity.Batch;
-import lk.student.SMS.Entity.Role;
+import lk.student.SMS.Enum.Role;
 import lk.student.SMS.Entity.Student;
 import lk.student.SMS.Entity.User;
 import lk.student.SMS.Service.StudentService;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl implements StudentService {

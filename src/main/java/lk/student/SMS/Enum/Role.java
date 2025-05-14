@@ -1,4 +1,4 @@
-package lk.student.SMS.Entity;
+package lk.student.SMS.Enum;
 
 public enum Role {
     STUDENT,

@@ -4,9 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lk.student.SMS.Entity.Role;
-import lombok.Data;
-import lombok.ToString;
+import lk.student.SMS.Enum.Role;
 
 
 public class UserDto {

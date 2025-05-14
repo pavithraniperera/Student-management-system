@@ -1,6 +1,7 @@
 package lk.student.SMS.Entity;
 
 import jakarta.persistence.*;
+import lk.student.SMS.Enum.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
