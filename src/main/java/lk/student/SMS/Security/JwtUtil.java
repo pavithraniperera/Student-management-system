@@ -60,6 +60,10 @@ public class JwtUtil {
         byte[] decodedKey = java.util.Base64.getDecoder().decode(jwtKey);
         return Keys.hmacShaKeyFor(decodedKey);
     }
+    // Generate a refreshed token (for refresh token endpoint)
+    public String generateRefreshToken(UserDetails userDetails) {
+        return refreshToken(new HashMap<>(), userDetails);
+    }
 
     // Generate the JWT token with claims, subject, and expiration
     private String generateToken(Map<String, Object> claims, UserDetails userDetails) {
@@ -81,7 +85,7 @@ public class JwtUtil {
     }
 
     // Check if the token is expired
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
@@ -94,7 +98,7 @@ public class JwtUtil {
     private String refreshToken(Map<String, Object> claims, UserDetails userDetails) {
         claims.put("role", userDetails.getAuthorities());
         Date now = new Date();
-        Date expire = new Date(now.getTime() + 1000 * 60 * 60 * 24); // New access token expires in 24 hours
+        //Date expire = new Date(now.getTime() + 1000 * 60 * 60 * 24); //  access token expires in 24 hours
         Date refreshExpire = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7); // Refresh token expires in 7 days
 
         return Jwts.builder()
