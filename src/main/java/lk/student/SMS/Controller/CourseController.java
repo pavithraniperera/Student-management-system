@@ -2,6 +2,7 @@ package lk.student.SMS.Controller;
 
 import jakarta.validation.Valid;
 import lk.student.SMS.Dto.CourseDto;
+import lk.student.SMS.Dto.FeeSchemeDto;
 import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -84,6 +87,12 @@ public class CourseController {
         } catch (Exception e) {
             return new ResponseEntity<>(new MessageResponse("Error deleting course: " + e.getMessage(), 0), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/by-course/{courseId}")
+    public ResponseEntity<List<FeeSchemeDto>> getFeeSchemesByCourseId(@PathVariable Long courseId) {
+        List<FeeSchemeDto> feeSchemes = courseService.getFeeSchemesByCourseId(courseId);
+        return ResponseEntity.ok(feeSchemes);
     }
 
 

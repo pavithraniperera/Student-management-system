@@ -24,8 +24,18 @@ public class FeeScheme {
     @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 
-    // Getters and setters
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+// Getters and setters
 
 
     public FeeScheme() {

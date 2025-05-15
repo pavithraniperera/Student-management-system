@@ -24,6 +24,16 @@ public class Course {
     // A course can have many batches
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Batch> batches = new ArrayList<>();
+    @OneToMany(mappedBy = "course")
+    private List<FeeScheme> feeSchemes = new ArrayList<>();
+
+    public List<FeeScheme> getFeeSchemes() {
+        return feeSchemes;
+    }
+
+    public void setFeeSchemes(List<FeeScheme> feeSchemes) {
+        this.feeSchemes = feeSchemes;
+    }
 
 
     // Helper method to add a batch to this course

@@ -1,8 +1,11 @@
 package lk.student.SMS.Service.impl;
 
 import lk.student.SMS.Dao.CourseRepository;
+import lk.student.SMS.Dao.FeeSchemeRepository;
 import lk.student.SMS.Dto.CourseDto;
+import lk.student.SMS.Dto.FeeSchemeDto;
 import lk.student.SMS.Entity.Course;
+import lk.student.SMS.Entity.FeeScheme;
 import lk.student.SMS.Service.CourseService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +13,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImpl implements CourseService {
     private  CourseRepository courseRepository;
+    private final FeeSchemeRepository feeSchemeRepository;
     private  ModelMapper modelMapper;
 
     @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, ModelMapper modelMapper) {
+    public CourseServiceImpl(CourseRepository courseRepository, FeeSchemeRepository feeSchemeRepository, ModelMapper modelMapper) {
         this.courseRepository = courseRepository;
+        this.feeSchemeRepository = feeSchemeRepository;
         this.modelMapper = modelMapper;
     }
     @Override
@@ -63,4 +66,20 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
         courseRepository.delete(course);
     }
+    @Override
+    public List<FeeSchemeDto> getFeeSchemesByCourseId(Long courseId) {
+        List<FeeScheme> feeSchemes = feeSchemeRepository.findByCourseId(courseId);
+
+        // Configure custom mappings
+        modelMapper.typeMap(FeeScheme.class, FeeSchemeDto.class).addMappings(mapper -> {
+            mapper.map(src -> src.getCreatedBy().getId(), FeeSchemeDto::setCreatedBy);
+            mapper.map(src -> src.getCourse().getCourseId(), FeeSchemeDto::setCourseId);
+        });
+
+        return feeSchemes.stream()
+                .map(feeScheme -> modelMapper.map(feeScheme, FeeSchemeDto.class))
+                .toList();
+    }
+
+
 }

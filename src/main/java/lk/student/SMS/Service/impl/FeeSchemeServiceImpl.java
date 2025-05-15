@@ -1,10 +1,12 @@
 package lk.student.SMS.Service.impl;
 
+import lk.student.SMS.Dao.CourseRepository;
 import lk.student.SMS.Dao.FeeSchemeRepository;
 import lk.student.SMS.Dao.PaymentPlanRepository;
 import lk.student.SMS.Dao.UserRepository;
 import lk.student.SMS.Dto.FeeSchemeDto;
 import lk.student.SMS.Dto.PaymentPlanDto;
+import lk.student.SMS.Entity.Course;
 import lk.student.SMS.Entity.FeeScheme;
 import lk.student.SMS.Entity.PaymentPlan;
 import lk.student.SMS.Entity.User;
@@ -17,20 +19,21 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class FeeSchemeServiceImpl implements FeeSchemeService {
 
     private final FeeSchemeRepository feeSchemeRepository;
     private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
     private final ModelMapper modelMapper;
     private final PaymentPlanRepository paymentPlanRepository;
 
     @Autowired
-    public FeeSchemeServiceImpl(FeeSchemeRepository feeSchemeRepository, UserRepository userRepository, ModelMapper modelMapper, PaymentPlanRepository paymentPlanRepository) {
+    public FeeSchemeServiceImpl(FeeSchemeRepository feeSchemeRepository, UserRepository userRepository, CourseRepository courseRepository, ModelMapper modelMapper, PaymentPlanRepository paymentPlanRepository) {
         this.feeSchemeRepository = feeSchemeRepository;
         this.userRepository = userRepository;
+        this.courseRepository = courseRepository;
         this.modelMapper = modelMapper;
         this.paymentPlanRepository = paymentPlanRepository;
     }
@@ -41,6 +44,7 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
         feeScheme.setSchemeName(dto.getSchemeName());
         feeScheme.setCreatedDate(LocalDate.now());
         feeScheme.setCurrency(dto.getCurrency());
+
         if (dto.getCreatedBy() == null) {
             throw new IllegalArgumentException("CreatedBy user ID must not be null");
         }else {
@@ -48,6 +52,15 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
             feeScheme.setCreatedBy(user);
 
+        }
+
+        // ✅ Set Course from courseId
+        if (dto.getCourseId() == null) {
+            throw new IllegalArgumentException("Course ID must not be null");
+        } else {
+            Course course = courseRepository.findById(dto.getCourseId())
+                    .orElseThrow(() -> new RuntimeException("Course not found"));
+            feeScheme.setCourse(course);
         }
 
 

@@ -1,6 +1,7 @@
 package lk.student.SMS.Service;
 
 import lk.student.SMS.Dto.CourseDto;
+import lk.student.SMS.Dto.FeeSchemeDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,4 +15,6 @@ public interface CourseService {
     Page<CourseDto> getAllCourses(Pageable pageable);
 
     void deleteCourse(Long id);
+    List<FeeSchemeDto> getFeeSchemesByCourseId(Long courseId);
+
 }

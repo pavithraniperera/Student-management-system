@@ -11,18 +11,29 @@ public class FeeSchemeDto {
     private LocalDate createdDate;
     private String currency;
     private Long createdBy;
+    private Long courseId;
     private List<PaymentPlanDto> paymentPlans;
 
     public FeeSchemeDto() {
     }
 
-    public FeeSchemeDto(Long id, String schemeName, LocalDate createdDate, String currency, Long createdBy, List<PaymentPlanDto> paymentPlans) {
+    public FeeSchemeDto(Long id, String schemeName, LocalDate createdDate, String currency, Long createdBy, List<PaymentPlanDto> paymentPlans,Long courseId) {
         this.id = id;
         this.schemeName = schemeName;
         this.createdDate = createdDate;
         this.currency = currency;
         this.createdBy = createdBy;
         this.paymentPlans = paymentPlans;
+        this.courseId = courseId;
+
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 
     public Long getId() {
