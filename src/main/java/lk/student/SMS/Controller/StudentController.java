@@ -30,7 +30,7 @@ public class StudentController {
             return new ResponseEntity<>(createdStudent, HttpStatus.CREATED);
         } catch (Exception e) {
             // Return MessageResponse with failure status
-            return new ResponseEntity<>(new MessageResponse("Error creating student: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse("Error creating student: " + e.getMessage(), 0), HttpStatus.OK);
         }
     }
 

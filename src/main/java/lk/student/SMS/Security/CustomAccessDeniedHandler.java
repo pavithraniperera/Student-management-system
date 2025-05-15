@@ -14,9 +14,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler  {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, java.io.IOException {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
-        response.getWriter().write("{ \"status\": 0, \"message\": \"Access Denied\" }");// custom json msg
+        response.getWriter().write("{ \"status\": 403, \"message\": \"Access Denied\" }");// custom json msg
     }
 }
 

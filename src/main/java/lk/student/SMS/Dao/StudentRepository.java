@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface StudentRepository extends JpaRepository<Student, Long> {
-  /*  List<Student> findByBatch_Id(Long batchId);  // Find students by batch ID
+public interface StudentRepository extends JpaRepository<Student, Long> {/*
+    List<Student> findByBatch_Id(Long batchId);  // Find students by batch ID
 
     // Find student by user ID
     Optional<Student> findByUser_UserId(Long userId);
