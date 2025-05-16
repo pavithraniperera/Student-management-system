@@ -40,17 +40,18 @@ public class AuthController {
         return authService.signUp(userDto);
     }
     @PostMapping("/refresh-token")
-    public ResponseEntity<JWTAuthResponse> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+    public ResponseEntity<JWTAuthResponse> refreshToken(@RequestHeader("Authorization") String refreshTokenHeader) {
         try {
-            // Extract the token from the Authorization header
-            String token = refreshToken.replace("Bearer ", "");
+            // Extract token from "Bearer <token>"
+            String refreshToken = refreshTokenHeader.replace("Bearer ", "");
 
             // Extract username from the refresh token
-            String username = jwtUtil.extractUserName(token);
+            String username = jwtUtil.extractUserName(refreshToken);
 
-
-            if (jwtUtil.isTokenExpired(token)) {
-                return ResponseEntity.status(401).body(new JWTAuthResponse(null, "Refresh token expired", 0));
+            // Check if the refresh token is expired
+            if (jwtUtil.isTokenExpired(refreshToken)) {
+                return ResponseEntity.status(401).body(
+                        new JWTAuthResponse(null, null, "Refresh token expired", 0));
             }
 
             // Load user details
@@ -59,10 +60,17 @@ public class AuthController {
             // Generate a new access token
             String newAccessToken = jwtUtil.generateToken(userDetails);
 
-            // Return the new access token
-            return ResponseEntity.ok(new JWTAuthResponse(newAccessToken, "Token refreshed successfully", 1));
+            // Optionally, generate a new refresh token (not required but optional best practice)
+            String newRefreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+            // Return both tokens
+            return ResponseEntity.ok(
+                    new JWTAuthResponse(newAccessToken, newRefreshToken, "Token refreshed successfully", 1));
+
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(new JWTAuthResponse(null, "Failed to refresh token: " + e.getMessage(), 0));
+            return ResponseEntity.status(401).body(
+                    new JWTAuthResponse(null, null, "Failed to refresh token: " + e.getMessage(), 0));
         }
     }
+
 }
