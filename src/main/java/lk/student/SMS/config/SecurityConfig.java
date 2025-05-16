@@ -37,11 +37,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                       /* .requestMatchers("/api/batch/**").hasAnyRole("COUNSELOR","FINANCE_MANAGER")   // ROLE_ADMIN
+                        .requestMatchers("/api/student").hasRole("COUNSELOR") // ROLE_STUDENT
+                        .requestMatchers("/api/common/**").hasAnyRole("ADMIN", "STUDENT")*/
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -49,13 +51,11 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(new CustomAccessDeniedHandler())
-
                 )
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
-        ;
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 }

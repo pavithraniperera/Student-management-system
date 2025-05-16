@@ -11,16 +11,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<MessageResponse> handleAlreadyExists(ResourceAlreadyExistsException ex) {
-        return new ResponseEntity<>(new MessageResponse(ex.getMessage(), 0), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new MessageResponse(ex.getMessage(), 0), HttpStatus.OK);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<MessageResponse> handleNotFound(ResourceNotFoundException ex) {
-        return new ResponseEntity<>(new MessageResponse(ex.getMessage(), 0), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new MessageResponse(ex.getMessage(), 0), HttpStatus.OK);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<MessageResponse> handleGeneric(Exception ex) {
-        return new ResponseEntity<>(new MessageResponse("Internal server error: " + ex.getMessage(), 0), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new MessageResponse("Internal server error: " + ex.getMessage(), 0), HttpStatus.OK);
     }
 }
