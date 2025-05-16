@@ -37,46 +37,34 @@ public class FeeSchemeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Long id) {
-        try {
+
             FeeSchemeDto feeScheme = feeSchemeService.getFeeSchemeById(id);
             return new ResponseEntity<>(feeScheme, HttpStatus.OK);
-        } catch (Exception e) {
-            // Return MessageResponse with failure status
-            return new ResponseEntity<>(new MessageResponse("Error retrieving fee scheme: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
-        }
+
     }
 
     @GetMapping
     public ResponseEntity<?> getAll() {
-        try {
+
             List<FeeSchemeDto> feeSchemes = feeSchemeService.getAll();
             return new ResponseEntity<>(feeSchemes, HttpStatus.OK);
-        } catch (Exception e) {
-            // Return MessageResponse with failure status
-            return new ResponseEntity<>(new MessageResponse("Error retrieving fee schemes: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
-        }
+
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody FeeSchemeDto dto) {
-        try {
+
             FeeSchemeDto updatedFeeScheme = feeSchemeService.updateFeeScheme(id, dto);
             return new ResponseEntity<>(updatedFeeScheme, HttpStatus.OK);
-        } catch (Exception e) {
-            // Return MessageResponse with failure status
-            return new ResponseEntity<>(new MessageResponse("Error updating fee scheme: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
-        }
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
+
             feeSchemeService.deleteFeeScheme(id);
             // Return MessageResponse with success status
             return new ResponseEntity<>(new MessageResponse("Fee scheme deleted successfully", 1), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            // Return MessageResponse with failure status
-            return new ResponseEntity<>(new MessageResponse("Error deleting fee scheme: " + e.getMessage(), 0), HttpStatus.BAD_REQUEST);
-        }
+
     }
 }

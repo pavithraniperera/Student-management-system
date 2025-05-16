@@ -7,9 +7,11 @@ import lk.student.SMS.Dto.BatchDto;
 import lk.student.SMS.Dto.IntakeDto;
 import lk.student.SMS.Dto.StudentDto;
 import lk.student.SMS.Entity.Batch;
-import lk.student.SMS.Enum.Role;
 import lk.student.SMS.Entity.Student;
 import lk.student.SMS.Entity.User;
+import lk.student.SMS.Enum.Role;
+import lk.student.SMS.Exception.InvalidRequestException;
+import lk.student.SMS.Exception.ResourceNotFoundException;
 import lk.student.SMS.Service.StudentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +19,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class StudentServiceImpl implements StudentService {
+
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final BatchRepository batchRepository;
     private final ModelMapper modelMapper;
+
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
                               UserRepository userRepository,
@@ -36,40 +37,40 @@ public class StudentServiceImpl implements StudentService {
         this.batchRepository = batchRepository;
         this.modelMapper = modelMapper;
     }
+
     @Override
     public StudentDto createStudent(StudentDto studentDto) {
-        Student student = new Student();
 
+
+        Student student = new Student();
         student.setName(studentDto.getName());
         student.setEmail(studentDto.getEmail());
 
         User counselor = userRepository.findById(studentDto.getRegisteredById())
-                .orElseThrow(() -> new RuntimeException("Counselor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Counselor not found with ID: " + studentDto.getRegisteredById()));
 
         if (!counselor.isCounselor()) {
-            throw new IllegalStateException("Only counselors can register students");
+            throw new InvalidRequestException("Only counselors can register students");
         }
         student.setRegisteredBy(counselor);
 
         Batch batch = batchRepository.findById(studentDto.getBatchId())
-                .orElseThrow(() -> new RuntimeException("Batch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Batch not found with ID: " + studentDto.getBatchId()));
         student.setBatch(batch);
 
         if (studentDto.getUserId() != null) {
             User user = userRepository.findById(studentDto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User account not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("User account not found with ID: " + studentDto.getUserId()));
             student.setUser(user);
         } else {
-            // Optional: auto-create a user account with STUDENT role
             User newUser = new User();
             newUser.setEmail(studentDto.getEmail());
             newUser.setName(studentDto.getName());
-            newUser.setPassword("123"); // or generate one
+            newUser.setPassword("123"); // Change to secure password strategy
             newUser.setRole(Role.STUDENT);
             userRepository.save(newUser);
             student.setUser(newUser);
         }
-
 
         Student savedStudent = studentRepository.save(student);
         return modelMapper.map(savedStudent, StudentDto.class);
@@ -77,29 +78,20 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDto getStudentById(Long id) {
-        /*Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        return modelMapper.map(student, StudentDto.class);*/
-
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + id));
 
         StudentDto studentDto = modelMapper.map(student, StudentDto.class);
-
-        // Get the Batch entity related to the student
         Batch batch = student.getBatch();
+
         if (batch != null) {
-            // Create the BatchDto
             BatchDto batchDto = modelMapper.map(batch, BatchDto.class);
 
-            // Map the related Intake entity from the Batch
-            IntakeDto intakeDto = null;
             if (batch.getIntake() != null) {
-                intakeDto = modelMapper.map(batch.getIntake(), IntakeDto.class);
+                IntakeDto intakeDto = modelMapper.map(batch.getIntake(), IntakeDto.class);
+                batchDto.setIntake(intakeDto);
             }
 
-            // Set the BatchDto in the StudentDto
-            batchDto.setIntake(intakeDto);
             studentDto.setBatch(batchDto);
         }
 
@@ -112,36 +104,39 @@ public class StudentServiceImpl implements StudentService {
         return studentPage.map(student -> modelMapper.map(student, StudentDto.class));
     }
 
-
     @Override
     public StudentDto updateStudent(Long id, StudentDto dto) {
+
+
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + id));
 
         student.setName(dto.getName());
         student.setEmail(dto.getEmail());
 
         if (dto.getBatchId() != null) {
             Batch batch = batchRepository.findById(dto.getBatchId())
-                    .orElseThrow(() -> new RuntimeException("Batch not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Batch not found with ID: " + dto.getBatchId()));
             student.setBatch(batch);
         }
 
         if (dto.getRegisteredById() != null) {
             User registeredBy = userRepository.findById(dto.getRegisteredById())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + dto.getRegisteredById()));
+
             if (!registeredBy.isCounselor()) {
-                throw new IllegalStateException("Only counselors can register students");
+                throw new InvalidRequestException("Only counselors can register students");
             }
+
             student.setRegisteredBy(registeredBy);
         }
 
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User account not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("User account not found with ID: " + dto.getUserId()));
             student.setUser(user);
         } else {
-            student.setUser(null); // remove user link if null provided
+            student.setUser(null);
         }
 
         Student updated = studentRepository.save(student);
@@ -151,7 +146,9 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void deleteStudent(Long id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + id));
         studentRepository.delete(student);
     }
+
+
 }

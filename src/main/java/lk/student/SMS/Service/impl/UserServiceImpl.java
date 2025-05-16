@@ -3,6 +3,7 @@ package lk.student.SMS.Service.impl;
 import lk.student.SMS.Dao.UserRepository;
 import lk.student.SMS.Dto.UserDto;
 import lk.student.SMS.Entity.User;
+import lk.student.SMS.Exception.ResourceNotFoundException;
 import lk.student.SMS.Service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     public UserDto getUserById(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
-            throw new RuntimeException("User not found with ID: " + id);
+            throw new ResourceNotFoundException("User not found with ID: " + id);
         }
         UserDto userDto= mapper.map(userOpt.get(), UserDto.class);
         // Set password to null
@@ -66,7 +67,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     @Override
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with ID: " + id);
+            throw new ResourceNotFoundException("User not found with ID: " + id);
         }
         userRepository.deleteById(id);
 
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     @Override
     public UserDto updateUser(Long id, UserDto userDto) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         // Map the updated fields (only update specific fields you allow to be updated)
         existingUser.setName(userDto.getName());

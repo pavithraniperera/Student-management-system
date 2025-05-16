@@ -10,6 +10,7 @@ import lk.student.SMS.Entity.Course;
 import lk.student.SMS.Entity.FeeScheme;
 import lk.student.SMS.Entity.PaymentPlan;
 import lk.student.SMS.Entity.User;
+import lk.student.SMS.Exception.ResourceNotFoundException;
 import lk.student.SMS.Service.FeeSchemeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,11 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
     private final PaymentPlanRepository paymentPlanRepository;
 
     @Autowired
-    public FeeSchemeServiceImpl(FeeSchemeRepository feeSchemeRepository, UserRepository userRepository, CourseRepository courseRepository, ModelMapper modelMapper, PaymentPlanRepository paymentPlanRepository) {
+    public FeeSchemeServiceImpl(FeeSchemeRepository feeSchemeRepository,
+                                UserRepository userRepository,
+                                CourseRepository courseRepository,
+                                ModelMapper modelMapper,
+                                PaymentPlanRepository paymentPlanRepository) {
         this.feeSchemeRepository = feeSchemeRepository;
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
@@ -40,29 +45,26 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
 
     @Override
     public FeeSchemeDto createFeeScheme(FeeSchemeDto dto) {
+        if (dto.getCreatedBy() == null) {
+            throw new ResourceNotFoundException("CreatedBy user ID must not be null");
+        }
+
+        if (dto.getCourseId() == null) {
+            throw new ResourceNotFoundException("Course ID must not be null");
+        }
+
+        User user = userRepository.findById(dto.getCreatedBy())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + dto.getCreatedBy()));
+
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + dto.getCourseId()));
+
         FeeScheme feeScheme = new FeeScheme();
         feeScheme.setSchemeName(dto.getSchemeName());
         feeScheme.setCreatedDate(LocalDate.now());
         feeScheme.setCurrency(dto.getCurrency());
-
-        if (dto.getCreatedBy() == null) {
-            throw new IllegalArgumentException("CreatedBy user ID must not be null");
-        }else {
-            User user = userRepository.findById(dto.getCreatedBy())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            feeScheme.setCreatedBy(user);
-
-        }
-
-        // ✅ Set Course from courseId
-        if (dto.getCourseId() == null) {
-            throw new IllegalArgumentException("Course ID must not be null");
-        } else {
-            Course course = courseRepository.findById(dto.getCourseId())
-                    .orElseThrow(() -> new RuntimeException("Course not found"));
-            feeScheme.setCourse(course);
-        }
-
+        feeScheme.setCreatedBy(user);
+        feeScheme.setCourse(course);
 
         List<PaymentPlan> plans = new ArrayList<>();
 
@@ -70,50 +72,42 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
             Optional<PaymentPlan> existingPlanOpt = paymentPlanRepository
                     .findByFeeTypeAndAmountAndDescription(p.getFeeType(), p.getAmount(), p.getDescription());
 
-            PaymentPlan plan;
+            PaymentPlan plan = existingPlanOpt.orElseGet(() -> {
+                PaymentPlan newPlan = new PaymentPlan();
+                newPlan.setFeeType(p.getFeeType());
+                newPlan.setDescription(p.getDescription());
+                newPlan.setAmount(p.getAmount());
+                return newPlan;
+            });
 
-            if (existingPlanOpt.isPresent()) {
-                // Reuse existing plan (optional: clone or validate it's OK to reuse)
-                plan = existingPlanOpt.get();
-            } else {
-                // Create new
-                plan = new PaymentPlan();
-                plan.setFeeType(p.getFeeType());
-                plan.setDescription(p.getDescription());
-                plan.setAmount(p.getAmount());
-            }
-
-            plan.setFeeScheme(feeScheme); // Always associate with the current FeeScheme
+            plan.setFeeScheme(feeScheme);
             plans.add(plan);
         }
 
         feeScheme.setPaymentPlans(plans);
 
-
         FeeScheme saved = feeSchemeRepository.save(feeScheme);
+
         modelMapper.typeMap(FeeScheme.class, FeeSchemeDto.class).addMappings(mapper ->
                 mapper.map(src -> src.getCreatedBy().getId(), FeeSchemeDto::setCreatedBy)
         );
 
         return modelMapper.map(saved, FeeSchemeDto.class);
-
     }
 
     @Override
     public FeeSchemeDto getFeeSchemeById(Long id) {
         FeeScheme feeScheme = feeSchemeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("FeeScheme not found with ID: " + id));
+
         return modelMapper.map(feeScheme, FeeSchemeDto.class);
     }
 
     @Override
     public List<FeeSchemeDto> getAll() {
-        // Fix: Set up ModelMapper mapping
         modelMapper.typeMap(FeeScheme.class, FeeSchemeDto.class).addMappings(mapper ->
                 mapper.map(src -> src.getCreatedBy().getId(), FeeSchemeDto::setCreatedBy)
         );
-
-        // addMapping  method allows you to define custom mapping behavior
 
         List<FeeScheme> feeSchemes = feeSchemeRepository.findAll();
         List<FeeSchemeDto> dtoList = new ArrayList<>();
@@ -125,11 +119,10 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
         return dtoList;
     }
 
-
     @Override
     public FeeSchemeDto updateFeeScheme(Long id, FeeSchemeDto dto) {
         FeeScheme feeScheme = feeSchemeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("FeeScheme not found with ID: " + id));
 
         feeScheme.setSchemeName(dto.getSchemeName());
         feeScheme.setCurrency(dto.getCurrency());
@@ -147,7 +140,6 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
             updatedPlans.add(plan);
         }
 
-
         feeScheme.getPaymentPlans().addAll(updatedPlans);
 
         return modelMapper.map(feeSchemeRepository.save(feeScheme), FeeSchemeDto.class);
@@ -155,6 +147,10 @@ public class FeeSchemeServiceImpl implements FeeSchemeService {
 
     @Override
     public void deleteFeeScheme(Long id) {
+        if (!feeSchemeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("FeeScheme not found with ID: " + id);
+        }
+
         feeSchemeRepository.deleteById(id);
     }
 }

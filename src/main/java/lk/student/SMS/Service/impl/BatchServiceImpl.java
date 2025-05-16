@@ -4,23 +4,21 @@ import lk.student.SMS.Dao.BatchRepository;
 import lk.student.SMS.Dao.CourseRepository;
 import lk.student.SMS.Dao.IntakeRepository;
 import lk.student.SMS.Dto.BatchDto;
-import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Entity.Batch;
 import lk.student.SMS.Entity.Course;
 import lk.student.SMS.Entity.Intake;
+import lk.student.SMS.Exception.ResourceNotFoundException;
 import lk.student.SMS.Service.BatchService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-
 public class BatchServiceImpl implements BatchService {
+
     private final BatchRepository batchRepository;
     private final IntakeRepository intakeRepository;
     private final CourseRepository courseRepository;
@@ -38,13 +36,14 @@ public class BatchServiceImpl implements BatchService {
         this.courseRepository = courseRepository;
         this.modelMapper = modelMapper;
     }
+
     @Override
     public BatchDto createBatch(BatchDto batchDto) {
         Intake intake = intakeRepository.findById(batchDto.getIntakeId())
-                .orElseThrow(() -> new RuntimeException("Intake not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Intake not found"));
 
         Course course = courseRepository.findById(batchDto.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
         Batch batch = new Batch();
         batch.setBatchName(batchDto.getBatchName());
@@ -58,13 +57,13 @@ public class BatchServiceImpl implements BatchService {
     @Override
     public BatchDto updateBatch(Long id, BatchDto batchDto) {
         Batch batch = batchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Batch not found"));
 
         Intake intake = intakeRepository.findById(batchDto.getIntakeId())
-                .orElseThrow(() -> new RuntimeException("Intake not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Intake not found"));
 
         Course course = courseRepository.findById(batchDto.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
         batch.setBatchName(batchDto.getBatchName());
         batch.setIntake(intake);
@@ -75,25 +74,17 @@ public class BatchServiceImpl implements BatchService {
     }
 
     @Override
-
-    public ResponseEntity<?> deleteBatch(Long id) {
+    public void deleteBatch(Long id) {
         if (!batchRepository.existsById(id)) {
-            return new ResponseEntity<>(new MessageResponse("Batch not found",0), HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Batch not found");
         }
-
-        try {
-            batchRepository.deleteById(id);
-            return new ResponseEntity<>("Batch deleted successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting batch: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        batchRepository.deleteById(id);
     }
-
 
     @Override
     public BatchDto getBatchById(Long id) {
         Batch batch = batchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Batch not found"));
         return modelMapper.map(batch, BatchDto.class);
     }
 
@@ -108,6 +99,5 @@ public class BatchServiceImpl implements BatchService {
         }
 
         return batchDtos;
-
     }
 }

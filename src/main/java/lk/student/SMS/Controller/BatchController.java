@@ -25,25 +25,20 @@ public class BatchController {
     @PostMapping
     public ResponseEntity<?> createBatch(@Valid @RequestBody BatchDto batchDto) {
 
-        try {
+
             BatchDto created = batchService.createBatch(batchDto);
             return new ResponseEntity<>(created, HttpStatus.CREATED);
-        } catch (Exception e) {
-            // Return error details along with a custom message
-            return new ResponseEntity<>(new MessageResponse("Error creating batch: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
-        }
+
 
     }
     // Update an existing batch
     @PreAuthorize("hasRole('COUNSELOR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBatch(@PathVariable Long id, @Valid @RequestBody BatchDto batchDto) {
-        try {
+
             BatchDto updated = batchService.updateBatch(id, batchDto);
             return new ResponseEntity<>(new MessageResponse("Batch updated successfully", 1), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new MessageResponse("Error updating batch: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
-        }
+
     }
 
 
@@ -51,35 +46,29 @@ public class BatchController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<?> getBatch(@PathVariable Long id) {
-        try {
+
             BatchDto batchDto = batchService.getBatchById(id);
             return new ResponseEntity<>(batchDto, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new MessageResponse("Error retrieving batch: " + e.getMessage(),0), HttpStatus.NOT_FOUND);
-        }
+
     }
 
     // Get all batches
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<?> getAllBatches() {
-        try {
+
             List<BatchDto> batches = batchService.getAllBatches();
             return new ResponseEntity<>(batches, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error retrieving batches: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+
     }
 
     // Delete a batch
     @PreAuthorize("hasRole('COUNSELOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBatch(@PathVariable Long id) {
-        try {
+
             batchService.deleteBatch(id);
             return new ResponseEntity<>(new MessageResponse("Batch deleted successfully",1), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new MessageResponse("Error deleting batch: " + e.getMessage(),0), HttpStatus.BAD_REQUEST);
-        }
+
     }
 }
