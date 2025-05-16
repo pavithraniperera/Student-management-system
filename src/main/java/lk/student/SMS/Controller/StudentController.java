@@ -1,5 +1,7 @@
 package lk.student.SMS.Controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lk.student.SMS.Dto.MessageResponse;
 import lk.student.SMS.Dto.StudentDto;
@@ -8,9 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/students")
@@ -22,14 +28,28 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @PreAuthorize("hasAnyRole('COUNSELOR')")
-    @PostMapping
-    public ResponseEntity<?> createStudent(@Valid @RequestBody StudentDto studentDto) {
+    @PreAuthorize("hasRole('COUNSELOR')")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createStudent(
+            @RequestParam("studentData") String studentData,  // Accept JSON as String
+            @RequestParam("nicImage") MultipartFile nicImageFile) {
 
-            StudentDto createdStudent = studentService.createStudent(studentDto);
+
+        try {
+            // Manually convert JSON to StudentDto
+            ObjectMapper objectMapper = new ObjectMapper();
+            StudentDto studentDto = objectMapper.readValue(studentData, StudentDto.class);
+
+            // Forward to service
+            StudentDto createdStudent = studentService.createStudent(studentDto, nicImageFile);
             return new ResponseEntity<>(createdStudent, HttpStatus.CREATED);
 
+        } catch (JsonProcessingException e) {
+            // Handle JSON parsing errors
+            return ResponseEntity.badRequest().body("Invalid student data format");
+        }
     }
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
@@ -64,11 +84,18 @@ public class StudentController {
     }
 
     @PreAuthorize("hasRole('COUNSELOR')")
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentDto studentDto) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateStudent(
+            @PathVariable Long id,
+            @RequestParam("studentData") String studentData,
+            @RequestParam(value = "nicImage", required = false) MultipartFile nicImageFile) {
 
-            StudentDto updatedStudent = studentService.updateStudent(id, studentDto);
+        try {
+            StudentDto studentDto = new ObjectMapper().readValue(studentData, StudentDto.class);
+            StudentDto updatedStudent = studentService.updateStudent(id, studentDto, nicImageFile);
             return new ResponseEntity<>(updatedStudent, HttpStatus.OK);
-
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Invalid student data format");
+        }
     }
 }

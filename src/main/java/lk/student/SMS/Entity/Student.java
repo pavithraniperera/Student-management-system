@@ -19,7 +19,7 @@ public class Student {
     private User registeredBy;
 
     // Student may have a user account (optional)
-    @OneToOne(optional = true)
+    @OneToOne(optional = true,orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -27,6 +27,10 @@ public class Student {
     @ManyToOne
     @JoinColumn(name = "batch_id", nullable = false)
     private Batch batch;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT") // optional, helps in MySQL
+    private String nicImageBase64;
+
 
     @PrePersist //Runs before the entity is inserted (saved for the first time) into the database
     @PreUpdate //Runs before an existing entity is updated.
@@ -37,6 +41,14 @@ public class Student {
     }
 
     public Student() {
+    }
+
+    public String getNicImageBase64() {
+        return nicImageBase64;
+    }
+
+    public void setNicImageBase64(String nicImageBase64) {
+        this.nicImageBase64 = nicImageBase64;
     }
 
     public Long getStudentId() {
@@ -85,5 +97,18 @@ public class Student {
 
     public void setBatch(Batch batch) {
         this.batch = batch;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "studentId=" + studentId +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", registeredBy=" + registeredBy +
+                ", user=" + user +
+                ", batch=" + batch +
+                ", nicImageBase64='" + nicImageBase64 + '\'' +
+                '}';
     }
 }

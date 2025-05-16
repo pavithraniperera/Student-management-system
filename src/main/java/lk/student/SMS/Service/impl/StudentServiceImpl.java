@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Base64;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -39,12 +43,23 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDto createStudent(StudentDto studentDto) {
+    public StudentDto createStudent(StudentDto studentDto, MultipartFile nicImageFile) {
+        // Convert file to Base64
+        String base64Image = null;
+        try {
+            base64Image = Base64.getEncoder().encodeToString(nicImageFile.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Set it in DTO
+        studentDto.setNicImageBase64(base64Image);
 
 
         Student student = new Student();
         student.setName(studentDto.getName());
         student.setEmail(studentDto.getEmail());
+        student.setNicImageBase64(base64Image);
 
         User counselor = userRepository.findById(studentDto.getRegisteredById())
                 .orElseThrow(() -> new ResourceNotFoundException("Counselor not found with ID: " + studentDto.getRegisteredById()));
@@ -105,14 +120,24 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDto updateStudent(Long id, StudentDto dto) {
+    public StudentDto updateStudent(Long id, StudentDto dto, MultipartFile nicImageFile) {
+
 
 
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + id));
 
+
         student.setName(dto.getName());
         student.setEmail(dto.getEmail());
+        if (nicImageFile != null && !nicImageFile.isEmpty()) {
+            try {
+                String base64Image = Base64.getEncoder().encodeToString(nicImageFile.getBytes());
+                student.setNicImageBase64(base64Image);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to process image file", e);
+            }
+        }
 
         if (dto.getBatchId() != null) {
             Batch batch = batchRepository.findById(dto.getBatchId())
@@ -145,8 +170,10 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void deleteStudent(Long id) {
+
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + id));
+
         studentRepository.delete(student);
     }
 

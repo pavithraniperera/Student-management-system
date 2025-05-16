@@ -24,6 +24,7 @@ public class StudentDto {
     private Long userId; // optional
 
     private BatchDto batch; // optional
+    private String nicImageBase64; // Base64 string of the image
 
 
     public StudentDto() {
@@ -47,6 +48,17 @@ public class StudentDto {
         this.userId = userId;
         this.batch = batch;
 
+    }
+
+    public StudentDto(Long id, String name, String email, Long batchId, Long registeredById, Long userId, BatchDto batch, String nicImageBase64) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.batchId = batchId;
+        this.registeredById = registeredById;
+        this.userId = userId;
+        this.batch = batch;
+        this.nicImageBase64 = nicImageBase64;
     }
 
     public Long getId() {
@@ -105,5 +117,12 @@ public class StudentDto {
         this.batch = batch;
     }
 
+    public String getNicImageBase64() {
+        return nicImageBase64;
+    }
+
+    public void setNicImageBase64(String nicImageBase64) {
+        this.nicImageBase64 = nicImageBase64;
+    }
 }
 
